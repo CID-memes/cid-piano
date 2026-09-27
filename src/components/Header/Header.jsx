@@ -1,27 +1,20 @@
 import React from 'react';
-import { Music, SlidersHorizontal, Mic, RotateCcw, Info, Maximize, Minimize, Sun, Moon, Grid3X3, Usb, RotateCw } from 'lucide-react';
+import { Music, Sun, Moon, RotateCw, Menu } from 'lucide-react';
 
 export default function Header({
-  activeTab, setActiveTab, onResetConfig,
-  showInfoModal, setShowInfoModal,
   theme, onToggleTheme,
-  isFullscreen, onToggleFullscreen,
-  midiConnected, onRotateScreen
+  onRotateScreen,
+  onToggleMobileMenu
 }) {
   return (
     <header className="header glass-panel">
       <div className="brand-title">
         <div className="brand-logo">
-          <Music size={24} color="#ffffff" />
+          <Music size={22} color="#ffffff" />
         </div>
         <div>
-          <h1>MEME PIANO</h1>
+          <h1>SURPRISE PIANO</h1>
         </div>
-        {midiConnected && (
-          <span className="brand-badge midi-badge">
-            <Usb size={10} /> MIDI
-          </span>
-        )}
       </div>
 
       <div className="header-actions">
@@ -46,15 +39,20 @@ export default function Header({
           {theme === 'dark' ? <Sun size={16} /> : <Moon size={16} />}
         </button>
 
-        <button 
-          className="btn btn-icon"
-          title="Keyboard Shortcuts & Info"
-          onClick={() => setShowInfoModal(true)}
-          id="btn-info"
-        >
-          <Info size={16} />
-        </button>
+        {onToggleMobileMenu && (
+          <button
+            className="btn btn-primary btn-icon btn-mobile-menu"
+            title="Open Controls & Settings Menu"
+            onClick={onToggleMobileMenu}
+            id="btn-mobile-menu"
+          >
+            <Menu size={18} />
+            <span className="btn-mobile-menu-text">Menu</span>
+          </button>
+        )}
       </div>
     </header>
   );
 }
+
+

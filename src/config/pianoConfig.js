@@ -120,63 +120,27 @@ export const DEFAULT_PIANO_KEYS = [
     id: "G#5", note: "G#", octave: 5, type: "black", shortcut: "v",
     soundName: "Sound 21", audio: "/sounds/AUD-20260927-WA0123.mp3",
     emoji: "⚡", freq: 830.61, category: "SFX"
+  },
+  {
+    id: "A5", note: "A", octave: 5, type: "white", shortcut: "b",
+    soundName: "Sound 22", audio: "/sounds/AUD-20260927-WA0125.mp3",
+    emoji: "🎵", freq: 880.00, category: "Music"
+  },
+  {
+    id: "A#5", note: "A#", octave: 5, type: "black", shortcut: "n",
+    soundName: "Sound 23", audio: "/sounds/AUD-20260927-WA0126.mp3",
+    emoji: "🎶", freq: 932.33, category: "SFX"
+  },
+  {
+    id: "B5", note: "B", octave: 5, type: "white", shortcut: "m",
+    soundName: "Sound 24", audio: "/sounds/modi-ji-bkl.mp3",
+    emoji: "🔥", freq: 987.77, category: "Meme"
   }
 ];
 
-export const CATEGORIES = ["All", "Meme", "SFX", "Funny", "Hype", "Gaming", "Music"];
-
-// Sound Packs / Presets
-export const SOUND_PACKS = {
-  'default': {
-    name: '🗿 Default Sounds',
-    description: 'Your custom sound collection',
-    preset: 'default'
-  }
-};
-
-// Chord detection helpers
+// MIDI note number to piano key mapping
 const NOTE_NAMES = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
 
-export function detectChord(activeKeyIds, keysConfig) {
-  if (!activeKeyIds || activeKeyIds.size < 2) return null;
-
-  const activeKeys = keysConfig.filter(k => activeKeyIds.has(k.id));
-  if (activeKeys.length < 2) return null;
-
-  // Get note indices (ignoring octave)
-  const noteIndices = [...new Set(activeKeys.map(k => NOTE_NAMES.indexOf(k.note)))].sort((a, b) => a - b);
-  if (noteIndices.length < 2) return null;
-
-  // Calculate intervals from root
-  const root = noteIndices[0];
-  const intervals = noteIndices.map(n => (n - root + 12) % 12).sort((a, b) => a - b);
-  const intervalsStr = intervals.join(',');
-
-  // Common chord patterns (intervals from root)
-  const CHORD_MAP = {
-    '0,4,7': 'Major',
-    '0,3,7': 'Minor',
-    '0,3,6': 'Diminished',
-    '0,4,8': 'Augmented',
-    '0,4,7,11': 'Major 7th',
-    '0,3,7,10': 'Minor 7th',
-    '0,4,7,10': 'Dominant 7th',
-    '0,5,7': 'Sus4',
-    '0,2,7': 'Sus2',
-    '0,4': 'Major (no 5th)',
-    '0,3': 'Minor (no 5th)',
-    '0,7': 'Power Chord',
-  };
-
-  const chordType = CHORD_MAP[intervalsStr];
-  if (chordType) {
-    return `${NOTE_NAMES[root]} ${chordType}`;
-  }
-
-  return `${NOTE_NAMES[root]} + ${noteIndices.length - 1} notes`;
-}
-
-// MIDI note number to piano key mapping
 export function midiNoteToKeyId(midiNote) {
   const octave = Math.floor(midiNote / 12) - 1;
   const noteIndex = midiNote % 12;

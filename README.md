@@ -1,16 +1,94 @@
-# React + Vite
+# 🎹 Surprise Piano
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+A high-performance, modern, responsive meme piano web application built with **React 19**, **Vite**, and **Web Audio API**.
 
-Currently, two official plugins are available:
+---
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## 🌟 Key Features
 
-## React Compiler
+* **🎹 24 Dynamic Piano Keys**: Spanning Octaves 4 and 5 (C4 through B5) with custom meme and funny sound effects.
+* **📱 Ultra-Responsive Mobile & Desktop View**: Designed with a 100vh viewport fit, adaptive drawer controls, and landscape mode rotation prompt.
+* **🎛️ Audio FX Engine**: Built-in real-time Web Audio API effects chain including **Reverb**, **Delay**, and **Filter**.
+* **🎚️ Master Controls**: Mute/Unmute, Master Volume Slider, and Playback Speed adjustment (0.5x to 2.0x).
+* **⌨️ Keyboard & Touch Support**: Play effortlessly using desktop QWERTY key shortcuts (A-L, W-O, Z-M) or multi-touch on mobile devices.
+* **🔌 Web MIDI Support**: Plug-and-play compatibility with external USB MIDI keyboards.
+* **🌙 Dark / Light Themes**: Toggleable visual themes with persistent local storage.
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+---
 
-## Expanding the Oxlint configuration
+## 💻 QWERTY Keyboard Layout Map
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and Oxlint's TypeScript related rules in your project.
+```
+  Black Keys:    [W]  [E]        [T]  [Y]  [U]        [I]  [O]        [P]       [V]  [N]
+  White Keys:  [A]  [S]  [D]   [F]  [G]  [H]  [J]   [K]  [L]  [Z]   [X]  [C]   [B]  [M]
+```
+
+---
+
+## 🚀 Getting Started
+
+### Prerequisites
+* **Node.js** (v18 or higher recommended)
+* **npm** or **yarn**
+
+### Installation
+
+1. **Clone the repository:**
+   ```bash
+   git clone <repository-url>
+   cd cid-piano
+   ```
+
+2. **Install dependencies:**
+   ```bash
+   npm install
+   ```
+
+3. **Start the development server:**
+   ```bash
+   npm run dev
+   ```
+
+4. **Build for production:**
+   ```bash
+   npm run build
+   ```
+
+---
+
+## 📁 Project Architecture
+
+```text
+cid-piano/
+├── public/
+│   └── sounds/              # Audio samples mapped to piano keys
+├── src/
+│   ├── audio/
+│   │   └── audioManager.js  # Web Audio API engine & FX chain
+│   ├── components/
+│   │   ├── Header/          # Application header & actions
+│   │   ├── Mobile/          # Mobile drawer sidebar controls
+│   │   ├── Piano/           # Piano container & key renderer
+│   │   └── VolumeControl/   # Desktop control bar & FX panel
+│   ├── config/
+│   │   └── pianoConfig.js   # 24-key layout configuration & MIDI maps
+│   ├── hooks/
+│   │   ├── useKeyboardShortcuts.js
+│   │   └── useLocalStorage.js
+│   ├── styles/
+│   │   └── index.css        # Core design system & responsive UI rules
+│   ├── App.jsx              # Main App layout & state orchestrator
+│   └── main.jsx             # React root entry point
+├── package.json
+└── vite.config.js
+```
+
+---
+
+## 🛠️ Tech Stack
+
+* **Frontend Framework**: React 19
+* **Build Tool**: Vite 8
+* **Icon Library**: Lucide React
+* **Styling**: Modern CSS variables, glassmorphism, responsive flexbox/grid layout
+* **Audio Processing**: Native Browser Web Audio API & Web MIDI API

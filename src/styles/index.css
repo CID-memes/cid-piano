@@ -25,6 +25,11 @@
   --text-muted: #94a3b8;
   --text-dim: #64748b;
 
+  --white-key-width: 52px;
+  --white-key-height: 220px;
+  --black-key-width: 32px;
+  --black-key-height: 135px;
+
   --white-key-bg: linear-gradient(180deg, #ffffff 0%, #f1f5f9 85%, #e2e8f0 100%);
   --white-key-hover: linear-gradient(180deg, #ffffff 0%, #e2e8f0 85%, #cbd5e1 100%);
   --white-key-border: #cbd5e1;
@@ -785,15 +790,15 @@ body {
 
 /* White Key */
 .piano-key-white {
-  width: 54px;
-  height: 220px;
+  width: var(--white-key-width);
+  height: var(--white-key-height);
   background: var(--white-key-bg);
   border: 1px solid var(--white-key-border);
   border-radius: 0 0 10px 10px;
   box-shadow: var(--white-key-shadow);
   z-index: 1;
   color: var(--white-key-text);
-  margin: 0 1.5px;
+  margin: 0 1px;
 }
 
 .piano-key-white:hover {
@@ -810,16 +815,21 @@ body {
 
 /* Black Key */
 .piano-key-black {
-  width: 34px;
-  height: 135px;
+  width: var(--black-key-width);
+  height: var(--black-key-height);
   background: var(--black-key-bg);
   border: 1px solid var(--black-key-border);
   border-radius: 0 0 6px 6px;
   box-shadow: var(--black-key-shadow);
   z-index: 10;
   color: #f8fafc;
-  margin-left: -17px;
-  margin-right: -17px;
+}
+
+.black-key-wrapper {
+  position: absolute;
+  top: 0;
+  right: calc(-1 * var(--black-key-width) / 2);
+  z-index: 10;
 }
 
 .piano-key-black:hover {
@@ -1866,4 +1876,249 @@ body {
     display: none;
   }
 }
+
+/* ========================= MOBILE MENU BUTTON & DRAWER ========================= */
+
+.btn-mobile-menu {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+  border: none;
+  color: #ffffff;
+  box-shadow: 0 4px 12px var(--accent-glow);
+}
+
+.btn-mobile-menu-text {
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+@media (min-width: 769px) {
+  .btn-mobile-menu {
+    display: none !important;
+  }
+}
+
+.mobile-drawer-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 100000;
+  background: rgba(0, 0, 0, 0.65);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  display: flex;
+  justify-content: flex-end;
+  animation: drawerFadeIn 0.25s ease forwards;
+}
+
+@keyframes drawerFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.mobile-drawer-content {
+  width: 320px;
+  max-width: 85vw;
+  height: 100%;
+  border-radius: 20px 0 0 20px;
+  background: var(--bg-card);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border-left: 1px solid var(--bg-card-border);
+  display: flex;
+  flex-direction: column;
+  box-shadow: -10px 0 30px rgba(0, 0, 0, 0.5);
+  animation: drawerSlideIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  overflow: hidden;
+}
+
+@keyframes drawerSlideIn {
+  from { transform: translateX(100%); }
+  to { transform: translateX(0); }
+}
+
+.mobile-drawer-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.25rem 1.25rem 1rem 1.25rem;
+  border-bottom: 1px solid var(--bg-card-border);
+}
+
+.drawer-title {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 1rem;
+  font-weight: 800;
+  color: var(--text-main);
+}
+
+.mobile-drawer-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.mobile-drawer-body::-webkit-scrollbar {
+  width: 4px;
+}
+.mobile-drawer-body::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 4px;
+}
+
+.drawer-section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  background: rgba(0, 0, 0, 0.15);
+  padding: 0.85rem;
+  border-radius: 12px;
+  border: 1px solid var(--bg-card-border);
+}
+
+.drawer-section-title {
+  font-size: 0.78rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.drawer-tab-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.4rem;
+}
+
+.drawer-tab-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.3rem;
+  padding: 0.6rem 0.4rem;
+  border-radius: 8px;
+  border: 1px solid var(--bg-card-border);
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--text-muted);
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.drawer-tab-btn.active {
+  background: rgba(99, 102, 241, 0.2);
+  border-color: var(--accent-primary);
+  color: #a5b4fc;
+}
+
+.drawer-volume-row {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.drawer-slider {
+  flex: 1;
+}
+
+.drawer-row-flex {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.drawer-fx-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.mobile-drawer-footer {
+  padding: 1rem 1.25rem;
+  border-top: 1px solid var(--bg-card-border);
+  display: flex;
+  gap: 0.6rem;
+  background: rgba(0, 0, 0, 0.1);
+}
+
+/* ========================= STRICT FIT-IN-SCREEN MOBILE VIEWPORT ========================= */
+
+@media (max-width: 768px) {
+  html, body {
+    height: 100vh;
+    height: 100dvh;
+    overflow: hidden;
+  }
+
+  .app-container {
+    height: 100vh;
+    height: 100dvh;
+    min-height: unset;
+    max-height: 100dvh;
+    padding: 0.4rem 0.4rem 0.5rem 0.4rem;
+    gap: 0.4rem;
+    justify-content: space-between;
+    overflow: hidden;
+  }
+
+  /* Hide standalone desktop control bar on mobile so drawer handles controls cleanly */
+  .controls-wrapper {
+    display: none !important;
+  }
+
+  /* Header compact height */
+  .header {
+    padding: 0.55rem 0.75rem;
+    border-radius: 12px;
+    flex-shrink: 0;
+  }
+
+  /* Main Piano Container takes rest of screen height */
+  .piano-wrapper {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 0.5rem 0.25rem;
+    border-radius: 14px;
+    min-height: 0;
+    overflow: hidden;
+  }
+
+  .piano-scroll-container {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    padding: 0;
+    overflow-x: auto;
+  }
+
+  /* Key heights for mobile portrait */
+  .piano-key-white {
+    width: 38px;
+    height: 100%;
+    max-height: 220px;
+    min-height: 140px;
+  }
+
+  .piano-key-black {
+    width: 24px;
+    height: 60%;
+    max-height: 130px;
+    min-height: 85px;
+    margin-left: -12px;
+    margin-right: -12px;
+  }
+}
+
 

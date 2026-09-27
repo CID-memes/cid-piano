@@ -1,10 +1,9 @@
 import React, { useState } from 'react';
-import { Volume2, VolumeX, Gauge, Waves, Timer, SlidersHorizontal, ChevronDown, ChevronUp } from 'lucide-react';
+import { Volume2, VolumeX, Gauge, Waves, SlidersHorizontal, ChevronDown, ChevronUp } from 'lucide-react';
 import { audioManager } from '../../audio/audioManager';
 
 export default function VolumeControl({
   volume, setVolume, isMuted, setIsMuted, speed, setSpeed,
-  sustainMode, setSustainMode,
   effects, setEffects
 }) {
   const [showEffects, setShowEffects] = useState(false);
@@ -82,18 +81,6 @@ export default function VolumeControl({
           </div>
         </div>
 
-        {/* Sustain Toggle */}
-        <div className="sustain-control">
-          <button
-            className={`btn btn-sm ${sustainMode ? 'btn-active btn-sustain-active' : ''}`}
-            onClick={() => setSustainMode(!sustainMode)}
-            title="Hold notes while key is pressed"
-          >
-            <Timer size={14} />
-            <span>Sustain</span>
-          </button>
-        </div>
-
         {/* Effects Toggle */}
         <button
           className={`btn btn-sm ${showEffects ? 'btn-active' : ''}`}
@@ -105,6 +92,7 @@ export default function VolumeControl({
           {showEffects ? <ChevronUp size={12} /> : <ChevronDown size={12} />}
         </button>
       </div>
+
 
       {/* Effects Panel */}
       {showEffects && (

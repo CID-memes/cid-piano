@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { RotateCw, Smartphone, Check, X, Maximize } from 'lucide-react';
+import { RotateCw, Smartphone, Check, X } from 'lucide-react';
 
 export default function RotateScreenOverlay() {
   const [isPortraitMobile, setIsPortraitMobile] = useState(false);
@@ -22,8 +22,6 @@ export default function RotateScreenOverlay() {
   }, []);
 
   useEffect(() => {
-    checkOrientation();
-
     const handleResize = () => checkOrientation();
     const handleOrientation = () => checkOrientation();
 
@@ -66,7 +64,7 @@ export default function RotateScreenOverlay() {
       } else {
         setLockStatusMessage('Please turn your phone 90° sideways to Landscape mode!');
       }
-    } catch (e) {
+    } catch {
       setLockStatusMessage('Please rotate your device to Landscape mode.');
     }
   };

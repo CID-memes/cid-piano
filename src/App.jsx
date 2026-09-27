@@ -1,25 +1,20 @@
-import React, { useState, useCallback, useEffect, lazy, Suspense } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import Header from './components/Header/Header';
 import PianoContainer from './components/Piano/PianoContainer';
 import VolumeControl from './components/VolumeControl/VolumeControl';
-import ToastContainer from './components/Toast/ToastContainer';
-import InfoModal from './components/InfoModal/InfoModal';
-import BeatSequencer from './components/Sequencer/BeatSequencer';
 import RotateScreenOverlay from './components/Piano/RotateScreenOverlay';
+import MobileDrawer from './components/Mobile/MobileDrawer';
 
-import { DEFAULT_PIANO_KEYS, SOUND_PACKS, detectChord, midiNoteToKeyId } from './config/pianoConfig';
+import { DEFAULT_PIANO_KEYS, midiNoteToKeyId } from './config/pianoConfig';
 import { audioManager } from './audio/audioManager';
 import useLocalStorage from './hooks/useLocalStorage';
 import useKeyboardShortcuts from './hooks/useKeyboardShortcuts';
-
-// Lazy load SoundLibrary since it's a secondary panel
-const SoundLibrary = lazy(() => import('./components/SoundLibrary/SoundLibrary'));
 
 export default function App() {
   // ==================== STATE ====================
 
   // Config (persisted)
-  const [keysConfig, setKeysConfig, resetKeysConfig] = useLocalStorage('meme_piano_keys_v21', DEFAULT_PIANO_KEYS);
+  const [keysConfig, setKeysConfig, resetKeysConfig] = useLocalStorage('meme_piano_keys_v24', DEFAULT_PIANO_KEYS);
   const [volume, setVolume] = useLocalStorage('meme_piano_vol', 0.8);
   const [theme, setTheme] = useLocalStorage('meme_piano_theme', 'dark');
 
@@ -32,14 +27,11 @@ export default function App() {
 
   // Active state
   const [activeKeyIds, setActiveKeyIds] = useState(new Set());
-  const [nowPlayingKey, setNowPlayingKey] = useState(null);
-  const [activeTab, setActiveTab] = useState('piano');
   const [isMuted, setIsMuted] = useState(false);
   const [speed, setSpeed] = useState(1.0);
-  const [sustainMode, setSustainMode] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [midiConnected, setMidiConnected] = useState(false);
-  const [chord, setChord] = useState(null);
+  const [showMobileMenu, setShowMobileMenu] = useState(false);
 
   // Effects state
   const [effects, setEffects] = useState({
@@ -48,15 +40,6 @@ export default function App() {
     filterFreq: 2000, filterType: 'lowpass'
   });
 
-  // Toasts & Modals
-  const [toasts, setToasts] = useState([]);
-  const [showInfoModal, setShowInfoModal] = useState(false);
-
-  // ==================== TOAST HELPERS ====================
-
-  const addToast = useCallback(() => {}, []);
-  const removeToast = useCallback(() => {}, []);
-
   // ==================== KEY TRIGGER ====================
 
   const triggerKey = useCallback((keyConfig) => {
@@ -64,43 +47,29 @@ export default function App() {
 
     audioManager.playSound(keyConfig);
 
-    setNowPlayingKey(keyConfig);
     setActiveKeyIds(prev => {
       const next = new Set(prev);
       next.add(keyConfig.id);
-
-      // Detect chord when multiple keys active
-      const chordName = detectChord(next, keysConfig);
-      setChord(chordName);
-
       return next;
     });
 
-    // Auto-clear visual highlight unless sustain mode
-    if (!sustainMode) {
-      setTimeout(() => {
-        setActiveKeyIds(prev => {
-          const next = new Set(prev);
-          next.delete(keyConfig.id);
-          if (next.size === 0) setChord(null);
-          return next;
-        });
-      }, 200);
-    }
-  }, [sustainMode, keysConfig]);
-
-  const handleKeyRelease = useCallback((keyConfig) => {
-    if (sustainMode) {
-      audioManager.releaseKey(keyConfig.id);
+    // Auto-clear visual highlight
+    setTimeout(() => {
       setActiveKeyIds(prev => {
         const next = new Set(prev);
         next.delete(keyConfig.id);
-        if (next.size === 0) setChord(null);
-        else setChord(detectChord(next, keysConfig));
         return next;
       });
-    }
-  }, [sustainMode, keysConfig]);
+    }, 200);
+  }, []);
+
+  const handleKeyRelease = useCallback((keyConfig) => {
+    setActiveKeyIds(prev => {
+      const next = new Set(prev);
+      next.delete(keyConfig.id);
+      return next;
+    });
+  }, []);
 
   // ==================== HOOKS ====================
 
@@ -113,10 +82,6 @@ export default function App() {
     audioManager.setMuted(isMuted);
     audioManager.setPlaybackSpeed(speed);
   }, [volume, isMuted, speed]);
-
-  useEffect(() => {
-    audioManager.setSustainMode(sustainMode);
-  }, [sustainMode]);
 
   useEffect(() => {
     audioManager.preloadAll(keysConfig);
@@ -172,7 +137,7 @@ export default function App() {
   useEffect(() => {
     const keyMap = new Map(keysConfig.map(k => [k.id, k]));
 
-    audioManager.initMIDI((type, midiNote, velocity) => {
+    audioManager.initMIDI((type, midiNote) => {
       const keyId = midiNoteToKeyId(midiNote);
       const keyConfig = keyMap.get(keyId);
 
@@ -184,39 +149,17 @@ export default function App() {
     }).then(success => {
       if (success) {
         setMidiConnected(true);
-        addToast({
-          type: 'info',
-          title: 'MIDI Connected',
-          message: 'MIDI keyboard detected and ready to play!'
-        });
       }
     });
   }, []);
 
-
-
   // ==================== CONFIG HANDLERS ====================
 
   const handleResetConfig = useCallback(() => {
-    if (window.confirm('Reset all sound mappings and shortcuts to default configuration?')) {
+    if (window.confirm('Reset all sound mappings to default?')) {
       resetKeysConfig();
-      addToast({ type: 'info', title: 'Reset Complete', message: 'Sound configuration restored to defaults.' });
     }
-  }, [resetKeysConfig, addToast]);
-
-  const handleUpdateKeyConfig = useCallback((id, updates) => {
-    setKeysConfig(prev => prev.map(k => k.id === id ? { ...k, ...updates } : k));
-  }, [setKeysConfig]);
-
-  const handleLoadPack = useCallback((packId) => {
-    const pack = SOUND_PACKS[packId];
-    if (!pack) return;
-    if (pack.preset === 'default') {
-      setKeysConfig(DEFAULT_PIANO_KEYS);
-    } else if (pack.keys) {
-      setKeysConfig(pack.keys);
-    }
-  }, [setKeysConfig]);
+  }, [resetKeysConfig]);
 
   // ==================== RENDER ====================
 
@@ -227,20 +170,34 @@ export default function App() {
 
       {/* Header */}
       <Header
-        activeTab={activeTab}
-        setActiveTab={setActiveTab}
         onResetConfig={handleResetConfig}
-        showInfoModal={showInfoModal}
-        setShowInfoModal={setShowInfoModal}
         theme={theme}
         onToggleTheme={toggleTheme}
         isFullscreen={isFullscreen}
         onToggleFullscreen={toggleFullscreen}
         midiConnected={midiConnected}
         onRotateScreen={handleRotateScreen}
+        onToggleMobileMenu={() => setShowMobileMenu(prev => !prev)}
       />
 
-      {/* Control Bar: Volume, Speed, Sustain, Effects */}
+      {/* Mobile Sidebar / Controls Drawer */}
+      <MobileDrawer
+        isOpen={showMobileMenu}
+        onClose={() => setShowMobileMenu(false)}
+        volume={volume}
+        setVolume={setVolume}
+        isMuted={isMuted}
+        setIsMuted={setIsMuted}
+        speed={speed}
+        setSpeed={setSpeed}
+        effects={effects}
+        setEffects={setEffects}
+        onResetConfig={handleResetConfig}
+        theme={theme}
+        onToggleTheme={toggleTheme}
+      />
+
+      {/* Desktop Control Bar: Volume, Speed, Effects */}
       <VolumeControl
         volume={volume}
         setVolume={setVolume}
@@ -248,8 +205,6 @@ export default function App() {
         setIsMuted={setIsMuted}
         speed={speed}
         setSpeed={setSpeed}
-        sustainMode={sustainMode}
-        setSustainMode={setSustainMode}
         effects={effects}
         setEffects={setEffects}
       />
@@ -260,39 +215,6 @@ export default function App() {
         activeKeyIds={activeKeyIds}
         onTriggerKey={triggerKey}
       />
-
-
-
-      {/* Beat Sequencer */}
-      {activeTab === 'sequencer' && (
-        <BeatSequencer
-          keysConfig={keysConfig}
-          onTriggerKey={triggerKey}
-        />
-      )}
-
-      {/* Sound Library (lazy loaded) */}
-      {activeTab === 'library' && (
-        <Suspense fallback={
-          <div className="glass-panel" style={{ padding: '2rem', textAlign: 'center', color: 'var(--text-muted)' }}>
-            Loading Sound Library...
-          </div>
-        }>
-          <SoundLibrary
-            keysConfig={keysConfig}
-            onUpdateKeyConfig={handleUpdateKeyConfig}
-            onTriggerKey={triggerKey}
-            onLoadPack={handleLoadPack}
-            addToast={addToast}
-          />
-        </Suspense>
-      )}
-
-      {/* Toasts */}
-      <ToastContainer toasts={toasts} onDismiss={removeToast} />
-
-      {/* Info Modal */}
-      <InfoModal isOpen={showInfoModal} onClose={() => setShowInfoModal(false)} />
     </div>
   );
 }

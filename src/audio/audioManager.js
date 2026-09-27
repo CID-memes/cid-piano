@@ -1,4 +1,4 @@
-// Enhanced AudioManager with effects chain, MIDI support, and WAV export
+// AudioManager with effects chain and MIDI support
 class AudioManager {
   constructor() {
     this.ctx = null;
@@ -9,9 +9,6 @@ class AudioManager {
     this.volume = 0.8;
     this.isMuted = false;
     this.playbackSpeed = 1.0;
-    this.onErrorCallback = null;
-    this.sustainMode = false;
-    this.activeSources = new Map(); // keyId -> {source, gain}
 
     // Effects nodes
     this.reverbNode = null;
@@ -32,12 +29,6 @@ class AudioManager {
     // MIDI
     this.midiAccess = null;
     this.midiCallback = null;
-
-    // Recording/Export
-    this.mediaRecorder = null;
-    this.recordedChunks = [];
-    this.isExportRecording = false;
-    this.destinationNode = null;
   }
 
   init() {
@@ -45,7 +36,7 @@ class AudioManager {
       const AudioCtx = window.AudioContext || window.webkitAudioContext;
       this.ctx = new AudioCtx();
 
-      // Build effects chain: source -> filter -> delay -> masterGain -> dry/wet -> analyser -> destination
+      // Build effects chain
       this.masterGain = this.ctx.createGain();
       this.masterGain.gain.setValueAtTime(this.isMuted ? 0 : this.volume, this.ctx.currentTime);
 
@@ -99,10 +90,6 @@ class AudioManager {
       this.delayGain.connect(this.analyser);
 
       this.analyser.connect(this.ctx.destination);
-
-      // MediaStream for export
-      this.destinationNode = this.ctx.createMediaStreamDestination();
-      this.analyser.connect(this.destinationNode);
     }
 
     if (this.ctx.state === 'suspended') {
@@ -180,37 +167,6 @@ class AudioManager {
     }
   }
 
-  // --- Sustain Mode ---
-  setSustainMode(enabled) {
-    this.sustainMode = enabled;
-    if (!enabled) {
-      // Stop all active sustained sources
-      this.activeSources.forEach((entry) => {
-        try {
-          entry.gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.1);
-          setTimeout(() => { try { entry.source.stop(); } catch(e) {} }, 150);
-        } catch (e) {}
-      });
-      this.activeSources.clear();
-    }
-  }
-
-  releaseKey(keyId) {
-    if (!this.sustainMode) return;
-    const entry = this.activeSources.get(keyId);
-    if (entry) {
-      try {
-        entry.gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.3);
-        setTimeout(() => { try { entry.source.stop(); } catch(e) {} }, 350);
-      } catch (e) {}
-      this.activeSources.delete(keyId);
-    }
-  }
-
-  setErrorCallback(cb) {
-    this.onErrorCallback = cb;
-  }
-
   setVolume(val) {
     this.volume = Math.max(0, Math.min(1, val));
     if (this.masterGain && this.ctx) {
@@ -270,21 +226,6 @@ class AudioManager {
     await Promise.all(paths.map(p => this.preload(p)));
   }
 
-  // Store audio buffer from a dropped file (drag-and-drop or file input)
-  async loadFromFile(file) {
-    this.init();
-    try {
-      const arrayBuffer = await file.arrayBuffer();
-      const decoded = await this.ctx.decodeAudioData(arrayBuffer);
-      const url = URL.createObjectURL(file);
-      this.buffers.set(url, decoded);
-      return url;
-    } catch (err) {
-      console.error('[AudioManager] Error loading file:', err);
-      return null;
-    }
-  }
-
   // Play sound from buffer or synthesizer fallback
   playSound(keyConfig) {
     this.init();
@@ -308,15 +249,6 @@ class AudioManager {
         keyGain.connect(this.masterGain);
 
         source.start(0);
-
-        // If sustain mode, track the source for later release
-        if (this.sustainMode) {
-          // Stop any existing source for this key
-          this.releaseKey(keyConfig.id);
-          this.activeSources.set(keyConfig.id, { source, gain: keyGain });
-          source.onended = () => this.activeSources.delete(keyConfig.id);
-        }
-
         return true;
       } catch (err) {
         console.error('[AudioManager] Error playing buffer:', err);
@@ -324,7 +256,7 @@ class AudioManager {
     }
 
     // Fallback: Synthesize rich piano sound live using Web Audio oscillators
-    this.playSynthesizedKey(keyConfig.freq || 440, keyConfig.id);
+    this.playSynthesizedKey(keyConfig.freq || 440);
 
     // If buffer was missing, attempt background load
     if (audioPath && !this.buffers.has(audioPath) && !this.loadingPromises.has(audioPath)) {
@@ -334,7 +266,7 @@ class AudioManager {
     return false;
   }
 
-  playSynthesizedKey(freq, keyId) {
+  playSynthesizedKey(freq) {
     if (!this.ctx) this.init();
     const now = this.ctx.currentTime;
 
@@ -352,7 +284,7 @@ class AudioManager {
     osc3.type = 'sine';
     osc3.frequency.setValueAtTime(freq * 3, now);
 
-    const duration = this.sustainMode ? 8 : 1.5;
+    const duration = 1.5;
 
     gainNode.gain.setValueAtTime(0.6, now);
     gainNode.gain.exponentialRampToValueAtTime(0.001, now + duration);
@@ -368,73 +300,6 @@ class AudioManager {
     osc1.stop(now + duration);
     osc2.stop(now + duration);
     osc3.stop(now + duration);
-
-    if (this.sustainMode && keyId) {
-      this.activeSources.set(keyId, { source: osc1, gain: gainNode });
-    }
-  }
-
-  getFrequencyData(dataArray) {
-    if (this.analyser) {
-      this.analyser.getByteFrequencyData(dataArray);
-    }
-  }
-
-  getTimeDomainData(dataArray) {
-    if (this.analyser) {
-      this.analyser.getByteTimeDomainData(dataArray);
-    }
-  }
-
-  // --- WAV Export ---
-  startExportRecording() {
-    this.init();
-    if (!this.destinationNode) return false;
-
-    try {
-      this.recordedChunks = [];
-      this.mediaRecorder = new MediaRecorder(this.destinationNode.stream, {
-        mimeType: 'audio/webm;codecs=opus'
-      });
-      this.mediaRecorder.ondataavailable = (e) => {
-        if (e.data.size > 0) this.recordedChunks.push(e.data);
-      };
-      this.mediaRecorder.start(100);
-      this.isExportRecording = true;
-      return true;
-    } catch (err) {
-      // Fallback if webm not supported
-      try {
-        this.mediaRecorder = new MediaRecorder(this.destinationNode.stream);
-        this.mediaRecorder.ondataavailable = (e) => {
-          if (e.data.size > 0) this.recordedChunks.push(e.data);
-        };
-        this.mediaRecorder.start(100);
-        this.isExportRecording = true;
-        return true;
-      } catch (err2) {
-        console.error('[AudioManager] MediaRecorder not supported:', err2);
-        return false;
-      }
-    }
-  }
-
-  stopExportRecording() {
-    return new Promise((resolve) => {
-      if (!this.mediaRecorder || !this.isExportRecording) {
-        resolve(null);
-        return;
-      }
-
-      this.mediaRecorder.onstop = () => {
-        const blob = new Blob(this.recordedChunks, { type: this.mediaRecorder.mimeType || 'audio/webm' });
-        this.isExportRecording = false;
-        this.recordedChunks = [];
-        resolve(blob);
-      };
-
-      this.mediaRecorder.stop();
-    });
   }
 
   // --- MIDI Support ---
@@ -480,15 +345,6 @@ class AudioManager {
         this.midiCallback('noteOff', note, 0);
       }
     }
-  }
-
-  getMIDIDevices() {
-    if (!this.midiAccess) return [];
-    const devices = [];
-    this.midiAccess.inputs.forEach((input) => {
-      devices.push({ id: input.id, name: input.name, manufacturer: input.manufacturer });
-    });
-    return devices;
   }
 }
 

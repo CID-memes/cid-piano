@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React from 'react';
 import PianoKey from './PianoKey';
 
 export default function PianoContainer({ keysConfig, activeKeyIds, onTriggerKey }) {
@@ -11,19 +11,6 @@ export default function PianoContainer({ keysConfig, activeKeyIds, onTriggerKey 
   };
 
   const whiteNotes = ['C', 'D', 'E', 'F', 'G', 'A', 'B'];
-
-  const scrollToOctave = useCallback((octave) => {
-    const container = document.getElementById('piano-scroll');
-    if (octave === 'all') {
-      container?.scrollTo({ left: 0, behavior: 'smooth' });
-      return;
-    }
-    const octaveElem = document.getElementById(`octave-group-${octave}`);
-    if (container && octaveElem) {
-      const offsetLeft = octaveElem.offsetLeft;
-      container.scrollTo({ left: offsetLeft - 12, behavior: 'smooth' });
-    }
-  }, []);
 
   return (
     <div className="piano-wrapper glass-panel">
@@ -67,14 +54,7 @@ export default function PianoContainer({ keysConfig, activeKeyIds, onTriggerKey 
                       
                       {/* Black Key Overlay */}
                       {blackKeyData && (
-                        <div 
-                          style={{
-                            position: 'absolute',
-                            top: 0,
-                            right: '-17px',
-                            zIndex: 10
-                          }}
-                        >
+                        <div className="black-key-wrapper">
                           <PianoKey
                             keyConfig={blackKeyData}
                             isPressed={isBlackPressed}
