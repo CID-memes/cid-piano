@@ -44,6 +44,7 @@ const PianoKey = memo(({ keyConfig, isPressed, onTrigger }) => {
       onTouchStart={handleTouchStart}
       style={activeGlowStyle}
       data-category={keyConfig.category}
+      data-key-id={keyConfig.id}
     >
       {/* Ripple Effects */}
       {ripples.map(ripple => (

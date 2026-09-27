@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import PianoKey from './PianoKey';
 
 export default function PianoContainer({ keysConfig, activeKeyIds, onTriggerKey }) {
@@ -12,12 +12,31 @@ export default function PianoContainer({ keysConfig, activeKeyIds, onTriggerKey 
 
   const whiteNotes = ['C', 'D', 'E', 'F', 'G', 'A', 'B'];
 
+  const scrollToOctave = useCallback((octave) => {
+    const container = document.getElementById('piano-scroll');
+    const octaveElem = document.getElementById(`octave-group-${octave}`);
+    if (container && octaveElem) {
+      const offsetLeft = octaveElem.offsetLeft;
+      container.scrollTo({ left: offsetLeft - 12, behavior: 'smooth' });
+    }
+  }, []);
+
   return (
     <div className="piano-wrapper glass-panel">
       <div className="piano-octave-legend">
-        {octaves.map(oct => (
-          <span key={oct}>OCTAVE {oct}</span>
-        ))}
+        <span className="octave-legend-title">KEYBOARD RANGE</span>
+        <div className="octave-jump-buttons">
+          {octaves.map(oct => (
+            <button 
+              key={oct}
+              className="btn-octave-pill"
+              onClick={() => scrollToOctave(oct)}
+              title={`Jump to Octave ${oct}`}
+            >
+              Octave {oct}
+            </button>
+          ))}
+        </div>
       </div>
 
       <div className="piano-scroll-container" id="piano-scroll">
@@ -29,6 +48,7 @@ export default function PianoContainer({ keysConfig, activeKeyIds, onTriggerKey 
             return (
               <div 
                 key={oct} 
+                id={`octave-group-${oct}`}
                 className="piano-octave-group"
                 style={{ 
                   display: 'flex', 
@@ -85,7 +105,7 @@ export default function PianoContainer({ keysConfig, activeKeyIds, onTriggerKey 
 
       {/* Mobile swipe hint */}
       <div className="swipe-hint" id="swipe-hint">
-        <span>← Swipe to see all keys →</span>
+        <span>← Swipe or tap Octave pills to switch →</span>
       </div>
     </div>
   );

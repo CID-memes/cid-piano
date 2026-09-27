@@ -90,6 +90,31 @@ export const DEFAULT_PIANO_KEYS = [
     id: "D5", note: "D", octave: 5, type: "white", shortcut: "l",
     soundName: "Sound 15", audio: "/sounds/AUD-20260927-WA0117.mp3",
     emoji: "🎉", freq: 587.33, category: "Hype"
+  },
+  {
+    id: "D#5", note: "D#", octave: 5, type: "black", shortcut: "o",
+    soundName: "Sound 16", audio: "/sounds/AUD-20260927-WA0118.mp3",
+    emoji: "✨", freq: 622.25, category: "SFX"
+  },
+  {
+    id: "E5", note: "E", octave: 5, type: "white", shortcut: "z",
+    soundName: "Sound 17", audio: "/sounds/AUD-20260927-WA0119.mp3",
+    emoji: "🔮", freq: 659.25, category: "Funny"
+  },
+  {
+    id: "F5", note: "F", octave: 5, type: "white", shortcut: "x",
+    soundName: "Sound 18", audio: "/sounds/AUD-20260927-WA0120.mp3",
+    emoji: "⭐", freq: 698.46, category: "Meme"
+  },
+  {
+    id: "F#5", note: "F#", octave: 5, type: "black", shortcut: "p",
+    soundName: "Sound 19", audio: "/sounds/AUD-20260927-WA0121.mp3",
+    emoji: "🚀", freq: 739.99, category: "Hype"
+  },
+  {
+    id: "G5", note: "G", octave: 5, type: "white", shortcut: "c",
+    soundName: "Sound 20", audio: "/sounds/AUD-20260927-WA0122.mp3",
+    emoji: "💎", freq: 783.99, category: "Gaming"
   }
 ];
 

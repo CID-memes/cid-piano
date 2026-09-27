@@ -50,7 +50,7 @@ export default function InfoModal({ isOpen, onClose }) {
               <Music size={16} color="var(--accent-cyan)" /> Features
             </h4>
             <ul className="feature-list">
-              <li><strong>🎹 Piano</strong> — 24 keys across 2 octaves with custom meme sounds</li>
+              <li><strong>🎹 Piano</strong> — 19 keys across octaves 4 and 5 with custom sounds</li>
               <li><strong>🎛️ Effects</strong> — Reverb, Delay, and Filter with adjustable parameters</li>
               <li><strong>⏯️ Sustain</strong> — Hold notes while the key is pressed</li>
               <li><strong>🎤 Recorder</strong> — Record performances and export as audio</li>

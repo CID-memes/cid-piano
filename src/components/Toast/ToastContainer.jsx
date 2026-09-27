@@ -19,8 +19,8 @@ export default function ToastContainer({ toasts, onDismiss }) {
             <CheckCircle size={20} color="#6366f1" />
           )}
           <div style={{ flex: 1 }}>
-            <div style={{ fontWeight: 600, fontSize: '0.85rem' }}>{toast.title}</div>
-            <div style={{ fontSize: '0.75rem', color: '#cbd5e1' }}>{toast.message}</div>
+            <div style={{ fontWeight: 600, fontSize: '0.85rem', color: 'var(--text-main)' }}>{toast.title}</div>
+            <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{toast.message}</div>
           </div>
         </div>
       ))}
