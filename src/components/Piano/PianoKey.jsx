@@ -44,7 +44,6 @@ const PianoKey = memo(({ keyConfig, isPressed, onTrigger }) => {
       onTouchStart={handleTouchStart}
       style={activeGlowStyle}
       data-category={keyConfig.category}
-      data-key-id={keyConfig.id}
     >
       {/* Ripple Effects */}
       {ripples.map(ripple => (
@@ -61,21 +60,8 @@ const PianoKey = memo(({ keyConfig, isPressed, onTrigger }) => {
         />
       ))}
 
-      {/* Category color indicator */}
-      <div
-        className="key-category-dot"
-        style={{ background: catColor.primary }}
-      />
-
-      <div className="key-sound-emoji">
-        {keyConfig.emoji || '🎵'}
-      </div>
-      <div className="key-note-label">
-        {keyConfig.note}
-        <span style={{ fontSize: '0.65rem', opacity: 0.75 }}>{keyConfig.octave}</span>
-      </div>
-      <div className="key-shortcut-badge">
-        {keyConfig.shortcut.toUpperCase()}
+      <div className="key-press-label">
+        {(keyConfig.shortcut || keyConfig.note).toUpperCase()}
       </div>
     </div>
   );

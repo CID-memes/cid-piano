@@ -14,6 +14,10 @@ export default function PianoContainer({ keysConfig, activeKeyIds, onTriggerKey 
 
   const scrollToOctave = useCallback((octave) => {
     const container = document.getElementById('piano-scroll');
+    if (octave === 'all') {
+      container?.scrollTo({ left: 0, behavior: 'smooth' });
+      return;
+    }
     const octaveElem = document.getElementById(`octave-group-${octave}`);
     if (container && octaveElem) {
       const offsetLeft = octaveElem.offsetLeft;
@@ -23,22 +27,6 @@ export default function PianoContainer({ keysConfig, activeKeyIds, onTriggerKey 
 
   return (
     <div className="piano-wrapper glass-panel">
-      <div className="piano-octave-legend">
-        <span className="octave-legend-title">KEYBOARD RANGE</span>
-        <div className="octave-jump-buttons">
-          {octaves.map(oct => (
-            <button 
-              key={oct}
-              className="btn-octave-pill"
-              onClick={() => scrollToOctave(oct)}
-              title={`Jump to Octave ${oct}`}
-            >
-              Octave {oct}
-            </button>
-          ))}
-        </div>
-      </div>
-
       <div className="piano-scroll-container" id="piano-scroll">
         <div className="piano-keys-container">
           {octaves.map((oct, octIdx) => {
@@ -101,11 +89,6 @@ export default function PianoContainer({ keysConfig, activeKeyIds, onTriggerKey 
             );
           })}
         </div>
-      </div>
-
-      {/* Mobile swipe hint */}
-      <div className="swipe-hint" id="swipe-hint">
-        <span>← Swipe or tap Octave pills to switch →</span>
       </div>
     </div>
   );

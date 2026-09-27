@@ -114,7 +114,12 @@ export const DEFAULT_PIANO_KEYS = [
   {
     id: "G5", note: "G", octave: 5, type: "white", shortcut: "c",
     soundName: "Sound 20", audio: "/sounds/AUD-20260927-WA0122.mp3",
-    emoji: "💎", freq: 783.99, category: "Gaming"
+    emoji: "🎉", freq: 783.99, category: "Music"
+  },
+  {
+    id: "G#5", note: "G#", octave: 5, type: "black", shortcut: "v",
+    soundName: "Sound 21", audio: "/sounds/AUD-20260927-WA0123.mp3",
+    emoji: "⚡", freq: 830.61, category: "SFX"
   }
 ];
 

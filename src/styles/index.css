@@ -142,10 +142,12 @@ body {
 
 .app-container {
   max-width: 1320px;
+  min-height: 100vh;
   margin: 0 auto;
   padding: 1.5rem 1rem 3rem 1rem;
   display: flex;
   flex-direction: column;
+  justify-content: center;
   gap: 1.25rem;
 }
 
@@ -664,7 +666,7 @@ body {
 
 .piano-octave-legend {
   display: flex;
-  justify-content: space-between;
+  justify-content: center;
   align-items: center;
   padding: 0 0.5rem;
   font-size: 0.8rem;
@@ -672,10 +674,30 @@ body {
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.05em;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.octave-legend-left {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+}
+
+.total-keys-badge {
+  font-size: 0.68rem;
+  font-weight: 800;
+  padding: 0.15rem 0.55rem;
+  border-radius: 12px;
+  background: rgba(99, 102, 241, 0.2);
+  border: 1px solid rgba(99, 102, 241, 0.4);
+  color: #a5b4fc;
 }
 
 .piano-scroll-container {
   width: 100%;
+  display: flex;
+  justify-content: center;
   overflow-x: auto;
   padding: 0.5rem 0 1.25rem 0;
   scroll-behavior: smooth;
@@ -813,27 +835,21 @@ body {
 }
 
 /* Labels on Key */
-.key-note-label {
-  font-family: var(--font-sans);
-  font-weight: 800;
-  font-size: 0.95rem;
-  line-height: 1;
-}
-
-.key-shortcut-badge {
+.key-press-label {
   font-family: var(--font-mono);
-  font-size: 0.7rem;
-  font-weight: 700;
+  font-weight: 800;
+  font-size: 1.15rem;
+  line-height: 1;
   text-transform: uppercase;
-  margin-top: 0.35rem;
-  padding: 0.1rem 0.35rem;
-  border-radius: 4px;
+  margin-bottom: 0.35rem;
 }
 
-.piano-key-white .key-shortcut-badge {
-  background: var(--white-key-badge-bg);
-  color: var(--white-key-badge-color);
-  border: 1px solid var(--white-key-badge-border);
+.piano-key-white .key-press-label {
+  color: #334155;
+}
+
+.piano-key-black .key-press-label {
+  color: #f8fafc;
 }
 
 .piano-key-black .key-shortcut-badge {
@@ -1660,7 +1676,9 @@ body {
 /* Octave Quick Jump Pills */
 .octave-jump-buttons {
   display: flex;
-  gap: 0.35rem;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 0.4rem;
 }
 
 .btn-octave-pill {
@@ -1751,6 +1769,10 @@ body {
     margin-right: -14px;
   }
 
+  .key-press-label {
+    display: none !important;
+  }
+
   .swipe-hint {
     display: block;
     font-size: 0.72rem;
@@ -1834,6 +1856,10 @@ body {
     height: 90px;
     margin-left: -14px;
     margin-right: -14px;
+  }
+
+  .key-press-label {
+    display: none !important;
   }
 
   .swipe-hint {

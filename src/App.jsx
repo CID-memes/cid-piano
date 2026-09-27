@@ -1,13 +1,11 @@
 import React, { useState, useCallback, useEffect, lazy, Suspense } from 'react';
 import Header from './components/Header/Header';
 import PianoContainer from './components/Piano/PianoContainer';
-import NowPlaying from './components/NowPlaying/NowPlaying';
 import VolumeControl from './components/VolumeControl/VolumeControl';
 import ToastContainer from './components/Toast/ToastContainer';
 import InfoModal from './components/InfoModal/InfoModal';
 import BeatSequencer from './components/Sequencer/BeatSequencer';
 import RotateScreenOverlay from './components/Piano/RotateScreenOverlay';
-import ParticleCanvas from './components/SoundVisualizer/ParticleCanvas';
 
 import { DEFAULT_PIANO_KEYS, SOUND_PACKS, detectChord, midiNoteToKeyId } from './config/pianoConfig';
 import { audioManager } from './audio/audioManager';
@@ -21,13 +19,13 @@ export default function App() {
   // ==================== STATE ====================
 
   // Config (persisted)
-  const [keysConfig, setKeysConfig, resetKeysConfig] = useLocalStorage('meme_piano_keys_v6', DEFAULT_PIANO_KEYS);
+  const [keysConfig, setKeysConfig, resetKeysConfig] = useLocalStorage('meme_piano_keys_v21', DEFAULT_PIANO_KEYS);
   const [volume, setVolume] = useLocalStorage('meme_piano_vol', 0.8);
   const [theme, setTheme] = useLocalStorage('meme_piano_theme', 'dark');
 
-  // Auto-sync if new default keys were added
+  // Auto-sync if user has cached config with fewer keys than DEFAULT_PIANO_KEYS
   useEffect(() => {
-    if (!keysConfig || keysConfig.length < DEFAULT_PIANO_KEYS.length) {
+    if (keysConfig.length < DEFAULT_PIANO_KEYS.length) {
       setKeysConfig(DEFAULT_PIANO_KEYS);
     }
   }, [keysConfig, setKeysConfig]);
@@ -35,7 +33,6 @@ export default function App() {
   // Active state
   const [activeKeyIds, setActiveKeyIds] = useState(new Set());
   const [nowPlayingKey, setNowPlayingKey] = useState(null);
-  const [lastTriggeredKey, setLastTriggeredKey] = useState(null);
   const [activeTab, setActiveTab] = useState('piano');
   const [isMuted, setIsMuted] = useState(false);
   const [speed, setSpeed] = useState(1.0);
@@ -68,7 +65,6 @@ export default function App() {
     audioManager.playSound(keyConfig);
 
     setNowPlayingKey(keyConfig);
-    setLastTriggeredKey({ keyConfig, timestamp: Date.now() });
     setActiveKeyIds(prev => {
       const next = new Set(prev);
       next.add(keyConfig.id);
@@ -226,9 +222,6 @@ export default function App() {
 
   return (
     <div className="app-container">
-      {/* Fullscreen Neon Particle Explosions on Key Hit */}
-      <ParticleCanvas triggeredKey={lastTriggeredKey} />
-
       {/* Mobile Portrait Rotate Overlay */}
       <RotateScreenOverlay />
 
@@ -259,13 +252,6 @@ export default function App() {
         setSustainMode={setSustainMode}
         effects={effects}
         setEffects={setEffects}
-      />
-
-      {/* Now Playing HUD with chord detection */}
-      <NowPlaying
-        activeKey={nowPlayingKey}
-        chord={chord}
-        sustainMode={sustainMode}
       />
 
       {/* Main Piano */}

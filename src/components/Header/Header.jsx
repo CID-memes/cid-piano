@@ -16,9 +16,7 @@ export default function Header({
         </div>
         <div>
           <h1>MEME PIANO</h1>
-          <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>Your Sounds. Your Keys. Zero Latency.</p>
         </div>
-        <span className="brand-badge">PRO v3.0</span>
         {midiConnected && (
           <span className="brand-badge midi-badge">
             <Usb size={10} /> MIDI
@@ -39,15 +37,6 @@ export default function Header({
           </button>
         )}
 
-        <button 
-          className="btn btn-icon"
-          title="Reset Sound Mappings"
-          onClick={onResetConfig}
-          id="btn-reset"
-        >
-          <RotateCcw size={16} />
-        </button>
-
         <button
           className="btn btn-icon"
           title={theme === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
@@ -55,15 +44,6 @@ export default function Header({
           id="btn-theme"
         >
           {theme === 'dark' ? <Sun size={16} /> : <Moon size={16} />}
-        </button>
-
-        <button
-          className="btn btn-icon"
-          title={isFullscreen ? 'Exit Fullscreen' : 'Enter Fullscreen'}
-          onClick={onToggleFullscreen}
-          id="btn-fullscreen"
-        >
-          {isFullscreen ? <Minimize size={16} /> : <Maximize size={16} />}
         </button>
 
         <button 
