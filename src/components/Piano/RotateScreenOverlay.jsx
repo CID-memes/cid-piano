@@ -8,12 +8,12 @@ export default function RotateScreenOverlay() {
 
   const checkOrientation = useCallback(() => {
     // Determine if device is mobile or tablet screen size
-    const isMobileWidth = window.innerWidth <= 850;
+    const isMobileWidth = window.innerWidth <= 900;
     const isTouch = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
     const isPortrait = window.innerHeight > window.innerWidth || 
                        (window.screen?.orientation?.type?.includes('portrait') ?? false);
 
-    // Only prompt on mobile/tablet view in portrait
+    // Prompt when mobile or touch device is in portrait orientation
     if ((isMobileWidth || isTouch) && isPortrait) {
       setIsPortraitMobile(true);
     } else {
@@ -22,6 +22,9 @@ export default function RotateScreenOverlay() {
   }, []);
 
   useEffect(() => {
+    // Run orientation check immediately on mount
+    checkOrientation();
+
     const handleResize = () => checkOrientation();
     const handleOrientation = () => checkOrientation();
 
@@ -44,11 +47,9 @@ export default function RotateScreenOverlay() {
   const handleRotateScreen = async () => {
     setLockStatusMessage('');
     try {
-      // 1. Attempt Fullscreen first (required by many browsers for orientation lock)
+      // 1. Attempt Fullscreen (required by browsers before locking screen orientation)
       if (document.documentElement.requestFullscreen && !document.fullscreenElement) {
-        await document.documentElement.requestFullscreen().catch(err => {
-          console.warn('Fullscreen request bypassed:', err);
-        });
+        await document.documentElement.requestFullscreen().catch(() => {});
       }
 
       // 2. Attempt Screen Orientation Lock API
@@ -57,9 +58,8 @@ export default function RotateScreenOverlay() {
           .then(() => {
             setLockStatusMessage('Screen locked to Landscape! 🎹');
           })
-          .catch(err => {
-            console.warn('Orientation lock notice:', err);
-            setLockStatusMessage('Please turn your phone sideways to auto-switch!');
+          .catch(() => {
+            setLockStatusMessage('Please turn your phone sideways to Landscape mode!');
           });
       } else {
         setLockStatusMessage('Please turn your phone 90° sideways to Landscape mode!');
@@ -99,7 +99,7 @@ export default function RotateScreenOverlay() {
 
         <h2>Rotate Your Screen</h2>
         <p>
-          For the <strong>best Meme Piano experience</strong> with full key access and touch controls, 
+          For the <strong>best Surprise Piano experience</strong> with full key access and touch controls, 
           please turn your device 90° sideways to <strong>Landscape mode</strong>.
         </p>
 

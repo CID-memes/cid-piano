@@ -162,68 +162,61 @@ body {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 1rem 1.5rem;
-  flex-wrap: wrap;
-  gap: 1rem;
+  padding: 0.85rem 1.5rem;
+  flex-wrap: nowrap;
+  gap: 0.75rem;
 }
 
 .brand-title {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
+  gap: 0.65rem;
+  min-width: 0;
 }
 
 .brand-logo {
-  width: 42px;
-  height: 42px;
-  border-radius: 12px;
+  width: 38px;
+  height: 38px;
+  min-width: 38px;
+  border-radius: 10px;
   background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
   display: flex;
   align-items: center;
   justify-content: center;
   box-shadow: 0 4px 12px var(--accent-glow);
+  flex-shrink: 0;
 }
 
-.brand-title h1 {
-  font-size: 1.75rem;
+.brand-name {
+  font-size: 1.5rem;
   font-weight: 800;
   letter-spacing: -0.02em;
   background: linear-gradient(135deg, var(--text-main) 30%, #a5b4fc 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
-}
-
-.brand-badge {
-  font-size: 0.7rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  padding: 0.2rem 0.6rem;
-  border-radius: 20px;
-  background: linear-gradient(135deg, rgba(99, 102, 241, 0.2), rgba(168, 85, 247, 0.2));
-  border: 1px solid rgba(168, 85, 247, 0.4);
-  color: #c084fc;
-  display: inline-flex;
-  align-items: center;
-  gap: 0.25rem;
-}
-
-.midi-badge {
-  background: linear-gradient(135deg, rgba(16, 185, 129, 0.2), rgba(52, 211, 153, 0.2));
-  border-color: rgba(16, 185, 129, 0.5);
-  color: #34d399;
-  animation: midiPulse 2s ease infinite;
-}
-
-@keyframes midiPulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.7; }
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .header-actions {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  flex-wrap: wrap;
+  gap: 0.4rem;
+  flex-wrap: nowrap;
+  flex-shrink: 0;
+}
+
+.btn-header-action {
+  height: 38px;
+  padding: 0 0.75rem;
+  border-radius: 10px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  font-size: 0.8rem;
+  font-weight: 600;
 }
 
 .header-divider {
@@ -2076,11 +2069,51 @@ body {
     display: none !important;
   }
 
-  /* Header compact height */
+  /* Header compact single-row height */
   .header {
-    padding: 0.55rem 0.75rem;
+    padding: 0.5rem 0.75rem;
     border-radius: 12px;
     flex-shrink: 0;
+    flex-wrap: nowrap !important;
+    justify-content: space-between;
+    gap: 0.5rem;
+  }
+
+  .brand-title {
+    gap: 0.5rem;
+  }
+
+  .brand-logo {
+    width: 32px;
+    height: 32px;
+    min-width: 32px;
+    border-radius: 8px;
+  }
+
+  .brand-name {
+    font-size: 1.05rem;
+    font-weight: 800;
+    letter-spacing: -0.01em;
+  }
+
+  .header-actions {
+    gap: 0.35rem;
+    flex-wrap: nowrap;
+  }
+
+  .btn-header-action {
+    height: 34px;
+    padding: 0 0.55rem;
+    border-radius: 8px;
+    font-size: 0.75rem;
+  }
+
+  .btn-label-desktop {
+    display: none;
+  }
+
+  .btn-mobile-menu-text {
+    font-size: 0.75rem;
   }
 
   /* Main Piano Container takes rest of screen height */
