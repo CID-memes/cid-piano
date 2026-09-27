@@ -1,12 +1,12 @@
 import React from 'react';
-import { Music, SlidersHorizontal, Mic, RotateCcw, Info, Maximize, Minimize, Sun, Moon, Grid3X3, Usb } from 'lucide-react';
+import { Music, SlidersHorizontal, Mic, RotateCcw, Info, Maximize, Minimize, Sun, Moon, Grid3X3, Usb, RotateCw } from 'lucide-react';
 
 export default function Header({
   activeTab, setActiveTab, onResetConfig,
   showInfoModal, setShowInfoModal,
   theme, onToggleTheme,
   isFullscreen, onToggleFullscreen,
-  midiConnected
+  midiConnected, onRotateScreen
 }) {
   return (
     <header className="header glass-panel">
@@ -27,34 +27,17 @@ export default function Header({
       </div>
 
       <div className="header-actions">
-        <button 
-          className={`btn ${activeTab === 'library' ? 'btn-active' : ''}`}
-          onClick={() => setActiveTab(activeTab === 'library' ? 'piano' : 'library')}
-          id="btn-library"
-        >
-          <SlidersHorizontal size={16} />
-          <span className="btn-label">Sounds</span>
-        </button>
-
-        <button 
-          className={`btn ${activeTab === 'sequencer' ? 'btn-active' : ''}`}
-          onClick={() => setActiveTab(activeTab === 'sequencer' ? 'piano' : 'sequencer')}
-          id="btn-sequencer"
-        >
-          <Grid3X3 size={16} />
-          <span className="btn-label">Sequencer</span>
-        </button>
-
-        <button 
-          className={`btn ${activeTab === 'recorder' ? 'btn-active' : ''}`}
-          onClick={() => setActiveTab(activeTab === 'recorder' ? 'piano' : 'recorder')}
-          id="btn-recorder"
-        >
-          <Mic size={16} />
-          <span className="btn-label">Recorder</span>
-        </button>
-
-        <div className="header-divider" />
+        {onRotateScreen && (
+          <button
+            className="btn btn-icon btn-rotate-header"
+            title="Rotate Screen to Landscape"
+            onClick={onRotateScreen}
+            id="btn-rotate"
+          >
+            <RotateCw size={16} />
+            <span className="btn-label-mobile">Rotate</span>
+          </button>
+        )}
 
         <button 
           className="btn btn-icon"

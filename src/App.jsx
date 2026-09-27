@@ -3,16 +3,15 @@ import Header from './components/Header/Header';
 import PianoContainer from './components/Piano/PianoContainer';
 import NowPlaying from './components/NowPlaying/NowPlaying';
 import VolumeControl from './components/VolumeControl/VolumeControl';
-import RecorderControls from './components/Recorder/RecorderControls';
 import ToastContainer from './components/Toast/ToastContainer';
 import InfoModal from './components/InfoModal/InfoModal';
 import BeatSequencer from './components/Sequencer/BeatSequencer';
+import RotateScreenOverlay from './components/Piano/RotateScreenOverlay';
 
 import { DEFAULT_PIANO_KEYS, SOUND_PACKS, detectChord, midiNoteToKeyId } from './config/pianoConfig';
 import { audioManager } from './audio/audioManager';
 import useLocalStorage from './hooks/useLocalStorage';
 import useKeyboardShortcuts from './hooks/useKeyboardShortcuts';
-import useRecorder from './hooks/useRecorder';
 
 // Lazy load SoundLibrary since it's a secondary panel
 const SoundLibrary = lazy(() => import('./components/SoundLibrary/SoundLibrary'));
@@ -49,16 +48,8 @@ export default function App() {
 
   // ==================== TOAST HELPERS ====================
 
-  const addToast = useCallback((toast) => {
-    setToasts(prev => [...prev.slice(-3), { ...toast, id: toast.id || Date.now() + Math.random() }]);
-    setTimeout(() => {
-      setToasts(prev => prev.filter(t => t.id !== toast.id));
-    }, 4000);
-  }, []);
-
-  const removeToast = useCallback((id) => {
-    setToasts(prev => prev.filter(t => t.id !== id));
-  }, []);
+  const addToast = useCallback(() => {}, []);
+  const removeToast = useCallback(() => {}, []);
 
   // ==================== KEY TRIGGER ====================
 
@@ -90,11 +81,6 @@ export default function App() {
         });
       }, 200);
     }
-
-    // Record if active
-    if (recorder.isRecording) {
-      recorder.recordNote(keyConfig);
-    }
   }, [sustainMode, keysConfig]);
 
   const handleKeyRelease = useCallback((keyConfig) => {
@@ -113,7 +99,6 @@ export default function App() {
   // ==================== HOOKS ====================
 
   useKeyboardShortcuts(keysConfig, triggerKey, handleKeyRelease);
-  const recorder = useRecorder(triggerKey);
 
   // ==================== AUDIO MANAGER SYNC ====================
 
@@ -128,13 +113,6 @@ export default function App() {
   }, [sustainMode]);
 
   useEffect(() => {
-    audioManager.setErrorCallback((path) => {
-      addToast({
-        type: 'warning',
-        title: 'Sound file missing',
-        message: `${path.split('/').pop()} could not be loaded. Using synthesized audio.`
-      });
-    });
     audioManager.preloadAll(keysConfig);
   }, []);
 
@@ -148,7 +126,7 @@ export default function App() {
     setTheme(prev => prev === 'dark' ? 'light' : 'dark');
   }, [setTheme]);
 
-  // ==================== FULLSCREEN ====================
+  // ==================== FULLSCREEN & ROTATE ====================
 
   const toggleFullscreen = useCallback(() => {
     if (!document.fullscreenElement) {
@@ -157,6 +135,19 @@ export default function App() {
     } else {
       document.exitFullscreen?.();
       setIsFullscreen(false);
+    }
+  }, []);
+
+  const handleRotateScreen = useCallback(async () => {
+    try {
+      if (document.documentElement.requestFullscreen && !document.fullscreenElement) {
+        await document.documentElement.requestFullscreen().catch(() => {});
+      }
+      if (window.screen?.orientation?.lock) {
+        await window.screen.orientation.lock('landscape').catch(() => {});
+      }
+    } catch (e) {
+      console.log('Rotate error:', e);
     }
   }, []);
 
@@ -192,21 +183,7 @@ export default function App() {
     });
   }, []);
 
-  // ==================== RECORDER HANDLERS ====================
 
-  const handleToggleRecord = useCallback((recording) => {
-    if (recording) {
-      recorder.startRecording();
-      addToast({ type: 'info', title: 'Recording started', message: 'Play keys to record your performance.' });
-    } else {
-      recorder.stopRecording();
-      addToast({ type: 'info', title: 'Recording stopped', message: `Saved ${recorder.recordedNotes.length} notes.` });
-    }
-  }, [recorder, addToast]);
-
-  const handleImportSequence = useCallback((code) => {
-    return recorder.importRecording(code, keysConfig);
-  }, [recorder, keysConfig]);
 
   // ==================== CONFIG HANDLERS ====================
 
@@ -235,6 +212,9 @@ export default function App() {
 
   return (
     <div className="app-container">
+      {/* Mobile Portrait Rotate Overlay */}
+      <RotateScreenOverlay />
+
       {/* Header */}
       <Header
         activeTab={activeTab}
@@ -247,6 +227,7 @@ export default function App() {
         isFullscreen={isFullscreen}
         onToggleFullscreen={toggleFullscreen}
         midiConnected={midiConnected}
+        onRotateScreen={handleRotateScreen}
       />
 
       {/* Control Bar: Volume, Speed, Sustain, Effects */}
@@ -277,17 +258,7 @@ export default function App() {
         onTriggerKey={triggerKey}
       />
 
-      {/* Recorder Controls */}
-      <RecorderControls
-        recordedNotes={recorder.recordedNotes}
-        isRecording={recorder.isRecording}
-        onToggleRecord={handleToggleRecord}
-        onPlayRecording={recorder.playRecording}
-        onClearRecording={recorder.clearRecording}
-        onExportSequence={recorder.exportRecording}
-        onImportSequence={handleImportSequence}
-        addToast={addToast}
-      />
+
 
       {/* Beat Sequencer */}
       {activeTab === 'sequencer' && (

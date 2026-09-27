@@ -2,8 +2,8 @@ import React from 'react';
 import PianoKey from './PianoKey';
 
 export default function PianoContainer({ keysConfig, activeKeyIds, onTriggerKey }) {
-  // Group keys by Octave
-  const octaves = [4, 5];
+  // Dynamically determine which octaves exist
+  const octaves = [...new Set(keysConfig.map(k => k.octave))].sort();
 
   // Helper to get key by note & octave
   const getKey = (note, octave) => {
@@ -15,13 +15,17 @@ export default function PianoContainer({ keysConfig, activeKeyIds, onTriggerKey 
   return (
     <div className="piano-wrapper glass-panel">
       <div className="piano-octave-legend">
-        <span>OCTAVE 4 (LOWER)</span>
-        <span>OCTAVE 5 (UPPER)</span>
+        {octaves.map(oct => (
+          <span key={oct}>OCTAVE {oct}</span>
+        ))}
       </div>
 
       <div className="piano-scroll-container" id="piano-scroll">
         <div className="piano-keys-container">
-          {octaves.map(oct => {
+          {octaves.map((oct, octIdx) => {
+            // Only render white notes that exist in this octave
+            const whiteKeysInOctave = whiteNotes.filter(note => getKey(note, oct));
+
             return (
               <div 
                 key={oct} 
@@ -29,18 +33,17 @@ export default function PianoContainer({ keysConfig, activeKeyIds, onTriggerKey 
                 style={{ 
                   display: 'flex', 
                   position: 'relative', 
-                  marginRight: oct === 4 ? '12px' : '0',
-                  paddingRight: oct === 4 ? '12px' : '0',
-                  borderRight: oct === 4 ? '2px dashed rgba(255, 255, 255, 0.1)' : 'none'
+                  marginRight: octIdx < octaves.length - 1 ? '12px' : '0',
+                  paddingRight: octIdx < octaves.length - 1 ? '12px' : '0',
+                  borderRight: octIdx < octaves.length - 1 ? '2px dashed rgba(255, 255, 255, 0.1)' : 'none'
                 }}
               >
-                {/* White Keys in Octave */}
-                {whiteNotes.map((note) => {
+                {whiteKeysInOctave.map((note) => {
                   const keyData = getKey(note, oct);
                   if (!keyData) return null;
                   const isPressed = activeKeyIds.has(keyData.id);
 
-                  // Check if this white note has a corresponding black note to its right
+                  // Check if this white note has a corresponding black note
                   const blackNoteMap = { 'C': 'C#', 'D': 'D#', 'F': 'F#', 'G': 'G#', 'A': 'A#' };
                   const blackNote = blackNoteMap[note];
                   const blackKeyData = blackNote ? getKey(blackNote, oct) : null;

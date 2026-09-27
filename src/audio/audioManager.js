@@ -234,7 +234,8 @@ class AudioManager {
   async preload(audioPath) {
     if (!audioPath) return null;
     if (this.buffers.has(audioPath)) {
-      return this.buffers.get(audioPath);
+      const b = this.buffers.get(audioPath);
+      return b === 'FAILED' ? null : b;
     }
     if (this.loadingPromises.has(audioPath)) {
       return this.loadingPromises.get(audioPath);
@@ -253,9 +254,7 @@ class AudioManager {
         return decoded;
       } catch (err) {
         console.warn(`[AudioManager] Could not load audio from ${audioPath}:`, err.message);
-        if (this.onErrorCallback) {
-          this.onErrorCallback(audioPath, err.message);
-        }
+        this.buffers.set(audioPath, 'FAILED');
         return null;
       } finally {
         this.loadingPromises.delete(audioPath);
@@ -296,7 +295,7 @@ class AudioManager {
     const audioPath = keyConfig.audio;
     const buffer = this.buffers.get(audioPath);
 
-    if (buffer) {
+    if (buffer && buffer !== 'FAILED') {
       try {
         const source = this.ctx.createBufferSource();
         source.buffer = buffer;
